@@ -15,7 +15,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "📥 Cloning repository..."
-                git branch: 'main', url: 'https://github.com/oussamamouldi/atelier-jenkins-mx.git'
+                git branch: 'main', url: 'https://github.com/oussamamouldi/atelier-jenkins-oussama.git'
             }
         }
 
