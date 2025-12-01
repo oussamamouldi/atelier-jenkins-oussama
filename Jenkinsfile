@@ -10,14 +10,6 @@ pipeline {
         pollSCM('*/2 * * * *')   // vérifie GitHub chaque 2 minutes
     }
 
-    stages {
-
-        stage('Checkout') {
-            steps {
-                echo "📥 Cloning repository..."
-                git branch: 'main', url: 'https://github.com/oussamamouldi/atelier-jenkins-oussama.git'
-            }
-        }
 
         stage('Clean') {
             steps {
