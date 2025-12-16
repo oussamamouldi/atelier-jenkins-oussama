@@ -33,7 +33,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo "Running SonarQube analysis"
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('sonar') {
                     sh '''
                         chmod +x mvnw
                         ./mvnw sonar:sonar
