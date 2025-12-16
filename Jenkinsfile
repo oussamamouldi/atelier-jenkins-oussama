@@ -1,15 +1,18 @@
 pipeline {
     agent any
 
+    
+
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-credentials'
-        DOCKERHUB_USER        = 'oussama7024'
+        DOCKERHUB_CREDENTIALS = 'dockerhub-login'
+        DOCKERHUB_USER        = 'taiebbsaies'
         IMAGE_NAME            = "${DOCKERHUB_USER}/atelier-jenkins"
         IMAGE_TAG             = "${BUILD_ID}"
         IMAGE_LATEST          = "${IMAGE_NAME}:latest"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo "Checking out main branch"
@@ -20,6 +23,28 @@ pipeline {
         stage('Build with Maven') {
             steps {
                 echo "Building JAR"
+                sh '''
+                    chmod +x mvnw
+                    ./mvnw clean compile
+                '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                echo "Running SonarQube analysis"
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                        chmod +x mvnw
+                        ./mvnw sonar:sonar
+                    '''
+                }
+            }
+        }
+
+        stage('Package Application') {
+            steps {
+                echo "Packaging JAR"
                 sh '''
                     chmod +x mvnw
                     ./mvnw clean package -DskipTests
@@ -39,7 +64,7 @@ pipeline {
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: "${DOCKERHUB_CREDENTIALS}",
+                    credentialsId: DOCKERHUB_CREDENTIALS,
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -59,7 +84,7 @@ pipeline {
             echo "SUCCESS: Image pushed → ${IMAGE_NAME}:${IMAGE_TAG}"
         }
         failure {
-            echo "FAILURE: Something went wrong"
+            echo "FAILURE: Check Jenkins console output"
         }
         always {
             cleanWs()
